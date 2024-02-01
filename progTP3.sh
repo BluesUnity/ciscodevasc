@@ -6,6 +6,7 @@ read -p "Entrez l'adresse IP pour CSR1kv: " ip
 export http_proxy=http://cache.univ-pau.fr:3128
 export https_proxy=$http_proxy
 export noproxy=localhost,192.168.64.0/24
+export noproxy=localhost,192.0.2.0/24
 
 
 # Activation du serveur SSH
@@ -66,9 +67,23 @@ EOF
 # Exécution du playbook Ansible pour installer Apache avec les options spécifiées
 ansible-playbook -v "$PLAYBOOK_FILE"
 
+
+unset http_proxy
+unset https_proxy
+unset no_proxy
+
+echo "
+Listen 443
+Listen  80
+" >> /etc/apache2/ports.conf
+
+#restart service apache2
+echo "Vérification du statut d'Apache..."
+sudo systemctl restart apache2
 # Vérification que Apache a été installé et configuré correctement
 echo "Vérification du statut d'Apache..."
 sudo systemctl status apache2
+
 
 # Indication pour accéder à la page web Apache par défaut via le navigateur
 echo "Ouvrez votre navigateur à l'adresse http://$ip:8081 pour voir la page web Apache."
